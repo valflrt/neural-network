@@ -1,6 +1,12 @@
+# Module imports
+
 import numpy as np
 from numpy.random import default_rng
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+
+# Sigmoid Function and its derivative
 
 
 # Sigmoid function
@@ -13,6 +19,9 @@ def dsigmoid(x):
     return np.exp(-x) / (1 + np.exp(-x)) ** 2
 
 
+# Cost function and its derivative
+
+
 # Cost function
 def cost(V, y):
     return (V - y) ** 2
@@ -23,10 +32,16 @@ def dcost(V, y):
     return 2 * (V - y)
 
 
+# Z function
+
+
 # The output of a layer (before being passed to the sigmoid
 # function)
 def z(X, W, B):
     return np.dot(X, W) + B
+
+
+# Forward propagation
 
 
 # Performs forward propagation and returns the values of z
@@ -51,8 +66,11 @@ def forward_prop(X, params):
 
 
 # Directly get output activations
-def outputs(X, params):
+def get_outputs(X, params):
     return forward_prop(X, params)["A2"]
+
+
+# Back propagation
 
 
 # Performs back propagation and returns the adjustment to be
@@ -68,9 +86,7 @@ def back_prop(X, y, params, activations):
     A1 = activations["A1"]
     A2 = activations["A2"]
 
-    m = y.shape[1]
-
-    dZ2 = dsigmoid(Z2) * dcost(A2, y.T)
+    dZ2 = dsigmoid(Z2) * dcost(A2, y)
     dZ1 = dsigmoid(Z1) * np.dot(dZ2, W2.T)
 
     dW2 = np.dot(A1.T, dZ2)
@@ -85,6 +101,9 @@ def back_prop(X, y, params, activations):
         "dW2": dW2,
         "dB2": dB2,
     }
+
+
+# Training the network
 
 
 def init_params(n0, n1, n2):
@@ -103,28 +122,24 @@ def update_params(params, adjustments, learning_rate):
     }
 
 
-def train(X, y, n_neurons=3, learning_rate=0.1, n_iter=1000):
+def train(X, y, n_neurons=4, learning_rate=0.1, n_iter=1000):
     n0 = X.shape[1]
     n2 = y.shape[1]
     params = init_params(n0, n_neurons, n2)
 
     cost_values = []
-    accuracy_values = []
 
-    for i in range(n_iter):
+    for i in tqdm(range(n_iter)):
         results = forward_prop(X, params)
         adjusted_params = back_prop(X, y, params, results)
         params = update_params(params, adjusted_params, learning_rate)
 
-        cost_values.append(np.average(cost(results["A2"], y).flatten()))
-        accuracy_values.append(np.average((y / results["A2"]).flatten()))
+        if i % 10 == 0:
+            cost_values.append(np.average(cost(results["A2"], y).flatten()))
 
     plt.figure(figsize=(12, 4))
     plt.subplot(1, 2, 1)
     plt.plot(cost_values, label="cost")
-    plt.legend()
-    plt.subplot(1, 2, 2)
-    plt.plot(accuracy_values, label="accuracy")
     plt.legend()
     plt.show()
 
@@ -133,33 +148,57 @@ def train(X, y, n_neurons=3, learning_rate=0.1, n_iter=1000):
 
 # XOR gate example
 
+
 # Input values
 X = np.array(
     [
-        [1, 1],
         [0, 0],
         [1, 0],
         [0, 1],
+        [1, 1],
     ]
 )
-# Expected output values (depending on X values)
+
+# Expected output values depending on X values (eg: with the
+# input [0, 0], the network should output [0])
 y = np.array(
     [
-        [
-            0,
-            0,
-            1,
-            1,
-        ]
+        [0],
+        [1],
+        [1],
+        [0],
     ]
 )
 
-adjusted_params = train(X, y, n_neurons=2, n_iter=10000)
+print("Training...\n")
+adjusted_params = train(X, y, n_neurons=4, n_iter=100000, learning_rate=0.1)
+print("\nAdjusted parameters:\n")
+for k, v in adjusted_params.items():
+    print("{}:\n{}".format(k, v))
 
 
-out = outputs(np.array([1, 0]), adjusted_params).flatten()
-out_average = np.average(out)
+# Testing the adjusted params
 
-print(out)
-print(out_average)
-print(out_average >= 0.5)
+
+outputs = [get_outputs(np.array(input), adjusted_params).item() for input in X]
+
+print("\nTesting adjusted parameters\n")
+for input, output, expected in zip(X, outputs, y):
+    print(
+        "inputs: {}   output: {} ({})   expected: {}".format(
+            input, output >= 0.5, np.round(output, decimals=5), expected.item() >= 0.5
+        )
+    )
+
+# Wow params: while testing I encountered parameters that gave
+# very accurate results so I kept them... This also shows that
+# parameters can easily be stored.
+wow_params = {
+    "W1": [
+        [7.34994504, 5.0280272, -4.91026115, -0.92254707],
+        [-3.86841705, 5.29557175, 7.58619768, -0.92105389],
+    ],
+    "B1": [[0.6566517, -0.54824396, 1.56477407, 0.95665089]],
+    "W2": [[-9.24217051], [10.88597922], [-9.2390908], [3.25685478]],
+    "B2": [[1.84207686]],
+}
