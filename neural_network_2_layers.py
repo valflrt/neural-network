@@ -76,10 +76,10 @@ def get_outputs(X, params):
 # Performs back propagation and returns the adjustment to be
 # that should applied to weights and biases
 def back_prop(X, y, params, activations):
-    W1 = params["W1"]
-    B1 = params["B1"]
+    # W1 = params["W1"]
+    # B1 = params["B1"]
     W2 = params["W2"]
-    B2 = params["B2"]
+    # B2 = params["B2"]
 
     Z1 = activations["Z1"]
     Z2 = activations["Z2"]
@@ -171,10 +171,9 @@ y = np.array(
 )
 
 print("Training...\n")
-adjusted_params = train(X, y, n_neurons=4, n_iter=100000, learning_rate=0.1)
+adjusted_params = train(X, y, n_neurons=4, n_iter=10000, learning_rate=0.1)
 print("\nAdjusted parameters:\n")
-for k, v in adjusted_params.items():
-    print("{}:\n{}".format(k, v))
+print("{}".format({k: v.tolist() for k, v in adjusted_params.items()}))
 
 
 # Testing the adjusted params
