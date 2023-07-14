@@ -1,3 +1,3 @@
 # Neural network
 
-A simple (crappy) pixel art game.
+A simple neural network with 2 layers.
