@@ -74,7 +74,7 @@ def get_outputs(X, params):
 
 
 # Performs back propagation and returns the adjustment that
-# should applied to weights and biases
+# should be applied to weights and biases
 def back_prop(X, y, params, activations):
     # W1 = params["W1"]
     # B1 = params["B1"]
