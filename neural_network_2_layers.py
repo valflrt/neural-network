@@ -191,7 +191,7 @@ for input, output, expected in zip(X, outputs, y):
 
 # Wow params: while testing I encountered parameters that gave
 # very accurate results so I kept them... This also shows that
-# parameters can easily be stored.
+# parameters can be stored easily.
 wow_params = {
     "W1": [
         [7.34994504, 5.0280272, -4.91026115, -0.92254707],
